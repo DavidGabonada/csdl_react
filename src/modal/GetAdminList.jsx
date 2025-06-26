@@ -22,7 +22,6 @@ const GetAdminList = () => {
                 setAdmins(res.data);
                 toast.success("Admins loaded successfully");
             } catch (error) {
-                console.log('Failed to load admins:', error);
                 toast.error("Failed to load admins");
             }
         };
@@ -32,24 +31,21 @@ const GetAdminList = () => {
     const deleteAdmin = async (admin_id) => {
         try {
             const url = secureLocalStorage.getItem("url") + "CSDL.php";
-            const jsonData = { admin_id };
             const formData = new FormData();
             formData.append("operation", "deleteAdmin");
-            formData.append("json", JSON.stringify(jsonData));
+            formData.append("json", JSON.stringify({ admin_id }));
             const res = await axios.post(url, formData);
+
             if (res.data === -1) {
-                toast.error("Failed to delete, there's a transaction using this admin");
+                toast.error("Cannot delete. Admin is linked to transactions.");
             } else if (res.data === 1) {
-                setAdmins(
-                    admins.filter((admin) => admin.admin_id !== admin_id)
-                );
+                setAdmins(admins.filter(admin => admin.adm_id !== admin_id));
                 toast.success("Admin deleted successfully");
             } else {
-                toast.error(res.data.message || "Failed to delete admin");
+                toast.error("Failed to delete admin.");
             }
         } catch (error) {
-            console.log('Failed to delete admin:', error);
-            toast.error("Failed to delete admin");
+            toast.error("Failed to delete admin.");
         }
     };
 
@@ -64,41 +60,38 @@ const GetAdminList = () => {
         setShowModal(true);
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedAdmin(null);
-    };
-
     return (
-        <div className="bg-gray-100 min-h-screen w-full p-8">
-            <div className="container mx-auto">
-                {/* kani imong eh copy paste, kaning arrowleft circle, tas use navigate dayun sa taas */}
-                <ArrowLeftCircle onClick={() => navigateTo(-1)} className='cursor-pointer' />
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 text-center">Admin Management</h1>
-                </div>
+        <div className="bg-gray-100 min-h-screen w-full py-10 px-6">
+            <div className="max-w-[1440px] mx-auto space-y-10">
+                <ArrowLeftCircle onClick={() => navigateTo(-1)} className="cursor-pointer text-green-700 hover:text-green-900 mb-4" size={32} />
 
-                <div className="flex flex-wrap justify-center gap-8 overflow-y-auto max-h-[80vh] max-w-[1200px]">
+                <h1 className="text-4xl font-bold text-green-800 text-center mb-6">
+                    Admin Management
+                </h1>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {admins.length > 0 ? (
                         admins.map((admin) => (
                             <div
                                 key={admin.adm_id}
-                                className="bg-white shadow-lg rounded-lg p-6 transform transition-transform hover:scale-105 w-80"
+                                className="bg-white shadow-md rounded-2xl p-6 w-full h-full transition-transform hover:scale-[1.02]"
                             >
-                                <div className="flex flex-col items-start space-y-3">
-                                    <div className="w-full">
-                                        <h2 className="text-2xl font-semibold text-gray-700">
+                                <div className="flex flex-col space-y-4 h-full justify-between">
+                                    <div>
+                                        <h2 className="text-2xl font-semibold text-green-700">
                                             {admin.adm_first_name} {admin.adm_last_name}
                                         </h2>
-                                        <p className="text-gray-600 text-sm">Employee ID: {admin.adm_employee_id}</p>
+                                        <p className="text-gray-600 text-sm mt-1">
+                                            ID: {admin.adm_employee_id}
+                                        </p>
+                                        <p className="text-gray-600 text-sm">
+                                            Contact: {admin.adm_contact_number}
+                                        </p>
+                                        <p className="text-gray-600 text-sm">
+                                            Email: {admin.adm_email}
+                                        </p>
                                     </div>
-
-                                    <div className="w-full border-t border-gray-300 mt-4 pt-4">
-                                        <p className="text-gray-600">Contact: {admin.adm_contact_number}</p>
-                                        <p className="text-gray-600">Email: {admin.adm_email}</p>
-                                    </div>
-
-                                    <div className="flex space-x-4 w-full justify-end mt-6">
+                                    <div className="flex space-x-3 justify-end">
                                         <button
                                             className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-colors"
                                             onClick={() => handleUpdate(admin)}
@@ -123,25 +116,31 @@ const GetAdminList = () => {
                 </div>
             </div>
 
-
             {showModal && selectedAdmin && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg w-full max-w-[80vw] max-h-[50vh] p-8 relative">
+                    <div className="bg-white rounded-xl w-full max-w-[90vw] sm:max-w-md p-8 relative shadow-lg">
                         <button
-                            onClick={closeModal}
+                            onClick={() => setShowModal(false)}
                             className="absolute top-2 right-2 bg-gray-200 rounded-full text-gray-600 p-2 hover:bg-gray-300 transition-colors"
                         >
                             X
                         </button>
-                        <div className="flex-1 p-4">
-                            <h2 className="text-2xl font-bold mb-4">Edit Admin</h2>
-                            <p><strong>Employee ID:</strong> {selectedAdmin.adm_employee_id}</p>
-                            <p><strong>Name:</strong> {selectedAdmin.adm_first_name} {selectedAdmin.adm_last_name}</p>
-
-                        </div>
-
-                        <div className="flex-1 p-4 border-l border-gray-200">
-                            {/* Additional content or form fields for horizontal layout */}
+                        <div className="flex flex-col space-y-6">
+                            <h2 className="text-2xl font-bold text-green-700">Edit Admin</h2>
+                            <div className="text-gray-700 space-y-2">
+                                <p><strong>Employee ID:</strong> {selectedAdmin.adm_employee_id}</p>
+                                <p><strong>Name:</strong> {selectedAdmin.adm_first_name} {selectedAdmin.adm_last_name}</p>
+                                <p><strong>Contact:</strong> {selectedAdmin.adm_contact_number}</p>
+                                <p><strong>Email:</strong> {selectedAdmin.adm_email}</p>
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

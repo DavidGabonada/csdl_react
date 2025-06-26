@@ -3,11 +3,14 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import secureLocalStorage from 'react-secure-storage';
 import { FaTrash, FaEdit } from 'react-icons/fa';
+import { ArrowLeftCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const GetSupervisorMaster = () => {
     const [supervisors, setSupervisors] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedSupervisor, setSelectedSupervisor] = useState(null);
+    const navigateTo = useNavigate();
 
     useEffect(() => {
         const getSupervisors = async () => {
@@ -19,7 +22,7 @@ const GetSupervisorMaster = () => {
                 setSupervisors(res.data);
                 toast.success("Supervisors loaded successfully");
             } catch (error) {
-                console.log('Failed to load supervisors:', error);
+                console.error('Failed to load supervisors:', error);
                 toast.error("Failed to load supervisors");
             }
         };
@@ -29,30 +32,30 @@ const GetSupervisorMaster = () => {
     const deleteSupervisor = async (supervisor_id) => {
         try {
             const url = secureLocalStorage.getItem("url") + "CSDL.php";
-            const jsonData = { supervisor_id };
             const formData = new FormData();
             formData.append("operation", "deleteSupervisorMaster");
-            formData.append("json", JSON.stringify(jsonData));
+            formData.append("json", JSON.stringify({ supervisor_id }));
             const res = await axios.post(url, formData);
+
             if (res.data === -1) {
                 toast.error("Failed to delete, there's a transaction using this supervisor");
             } else if (res.data === 1) {
-                setSupervisors(
-                    supervisors.filter((supervisor) => supervisor.supervisor_id !== supervisor_id)
+                setSupervisors((prev) =>
+                    prev.filter((supervisor) => supervisor.supervisor_id !== supervisor_id)
                 );
                 toast.success("Supervisor deleted successfully");
             } else {
                 toast.error(res.data.message || "Failed to delete supervisor");
             }
         } catch (error) {
-            console.log('Failed to delete supervisor:', error);
+            console.error('Failed to delete supervisor:', error);
             toast.error("Failed to delete supervisor");
         }
     };
 
-    const handleDelete = (supervisorId) => {
+    const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this supervisor?")) {
-            deleteSupervisor(supervisorId);
+            deleteSupervisor(id);
         }
     };
 
@@ -61,50 +64,42 @@ const GetSupervisorMaster = () => {
         setShowModal(true);
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedSupervisor(null);
-    };
-
     return (
-        <div className="bg-gray-100 min-h-screen w-full p-8">
-            <div className="container mx-auto">
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold text-gray-800 text-center">Supervisor Management</h1>
-                </div>
+        <div className="bg-gray-100 min-h-screen w-full py-10 px-6">
+            <div className="max-w-[1440px] mx-auto space-y-10">
+                <ArrowLeftCircle onClick={() => navigateTo(-1)} className="cursor-pointer text-blue-700 hover:text-blue-900 mb-4" size={32} />
+                <h1 className="text-4xl font-bold text-blue-800 text-center mb-6">
+                    Supervisor Management
+                </h1>
 
-                <div className="flex flex-wrap justify-center gap-8 overflow-y-auto max-h-[80vh] max-w-[1200px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
                     {supervisors.length > 0 ? (
-                        supervisors.map((supervisor) => (
+                        supervisors.map((sup) => (
                             <div
-                                key={supervisor.supervisor_id}
-                                className="bg-white shadow-lg rounded-lg p-6 transform transition-transform hover:scale-105 w-80"
+                                key={sup.supervisor_id}
+                                className="bg-white shadow-md rounded-2xl p-6 w-full h-full transition-transform hover:scale-[1.02]"
                             >
-                                <div className="flex flex-col items-start space-y-3">
-                                    <div className="w-full">
-                                        <h2 className="text-2xl font-semibold text-gray-700">
-                                            {supervisor.supM_first_name} {supervisor.supM_last_name}
+                                <div className="flex flex-col space-y-4 h-full justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-blue-700">
+                                            {sup.supM_first_name} {sup.supM_last_name}
                                         </h2>
-                                        <p className="text-gray-600 text-sm">Employee ID: {supervisor.supM_employee_id}</p>
+                                        <p className="text-gray-500 text-sm">Employee ID: {sup.supM_employee_id}</p>
+                                        <p className="text-gray-500 text-sm">Department: {sup.dept_name}</p>
+                                        <p className="text-gray-500 text-sm">Contact: {sup.supM_contact_number}</p>
+                                        <p className="text-gray-500 text-sm">Email: {sup.supM_email}</p>
                                     </div>
-
-                                    <div className="w-full border-t border-gray-300 mt-4 pt-4">
-                                        <p className="text-gray-600">Department: {supervisor.dept_name}</p>
-                                        <p className="text-gray-600">Contact: {supervisor.supM_contact_number}</p>
-                                        <p className="text-gray-600">Email: {supervisor.supM_email}</p>
-                                    </div>
-
-                                    <div className="flex space-x-4 w-full justify-end mt-6">
+                                    <div className="flex space-x-3 justify-end">
                                         <button
                                             className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-colors"
-                                            onClick={() => handleUpdate(supervisor)}
+                                            onClick={() => handleUpdate(sup)}
                                         >
                                             <FaEdit />
                                             <span>Edit</span>
                                         </button>
                                         <button
                                             className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition-colors"
-                                            onClick={() => handleDelete(supervisor.supervisor_id)}
+                                            onClick={() => handleDelete(sup.supervisor_id)}
                                         >
                                             <FaTrash />
                                             <span>Delete</span>
@@ -119,25 +114,32 @@ const GetSupervisorMaster = () => {
                 </div>
             </div>
 
-            {/* Landscape Modal */}
             {showModal && selectedSupervisor && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white rounded-lg w-full max-w-[80vw] max-h-[50vh] p-8 relative flex flex-col md:flex-row">
+                    <div className="bg-white rounded-xl w-full max-w-[90vw] sm:max-w-md p-8 relative shadow-lg">
                         <button
-                            onClick={closeModal}
-                            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-2 right-2 bg-gray-200 rounded-full text-gray-600 p-2 hover:bg-gray-300 transition-colors"
                         >
-                            Close
+                            X
                         </button>
-                        <div className="flex-1 p-4">
-                            <h2 className="text-2xl font-bold mb-4">Edit Supervisor</h2>
-                            <p><strong>Employee ID:</strong> {selectedSupervisor.supM_employee_id}</p>
-                            <p><strong>Name:</strong> {selectedSupervisor.supM_first_name} {selectedSupervisor.supM_last_name}</p>
-                            {/* Add your edit form fields here */}
-                        </div>
-
-                        <div className="flex-1 p-4 border-l border-gray-200">
-                            {/* Additional content or form fields for horizontal layout */}
+                        <div className="flex flex-col space-y-6">
+                            <h2 className="text-2xl font-bold text-blue-700">Supervisor Details</h2>
+                            <div className="text-gray-700 space-y-2">
+                                <p><strong>ID:</strong> {selectedSupervisor.supM_employee_id}</p>
+                                <p><strong>Name:</strong> {selectedSupervisor.supM_first_name} {selectedSupervisor.supM_last_name}</p>
+                                <p><strong>Department:</strong> {selectedSupervisor.dept_name}</p>
+                                <p><strong>Contact:</strong> {selectedSupervisor.supM_contact_number}</p>
+                                <p><strong>Email:</strong> {selectedSupervisor.supM_email}</p>
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                                    onClick={() => setShowModal(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

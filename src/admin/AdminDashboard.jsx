@@ -124,12 +124,12 @@ const MasterFiles = () => {
                                     { title: 'Scholarship Type', buttonText: 'Add Scholarship Type', route: '/addScholarshipType', content: <AddScholarshipType />, buttonText2: 'Scholarship Type   List', contentlist: "/ScholarshipType" },
 
                                     { title: 'Scholar', buttonText: 'Add Scholar', route: <AddScholar />, content: <AddScholar />, buttonText: 'Scholar List', contentlist: "/ScholarList" },
-                                    { title: 'Supervisor Master', buttonText: 'Add Supervisor Master', route: '/addSupervisor', content: <AddSupervisor />, buttonText2: 'Supervisor List', contentlist: <GetSupervisor /> },
+                                    { title: 'Supervisor Master', buttonText: 'Add Supervisor Master', route: '/addSupervisor', content: <AddSupervisor />, buttonText2: 'Supervisor List', contentlist: "/Supervisorlist" },
                                     // { title: 'Scholarship Sub Type', buttonText: 'Add Scholarship Sub Type', route: '/addScholarshipSubType', content: <AddScholarshipSubType />, buttonText2: 'Scholarship Sub Type List', contentlist: <GetScholarshipSubType /> },
                                     { title: 'Building', buttonText: 'Add Building', route: '/addBuilding', content: <AddBuilding />, buttonText2: 'Building List', contentlist: "/BuildingList" },
-                                    { title: 'Room', buttonText: 'Add Room', route: '/addRoom', content: <AddRoom />, buttonText2: 'Room List', contentlist: <GetRoom /> },
+                                    { title: 'Room', buttonText: 'Add Room', route: '/addRoom', content: <AddRoom />, buttonText2: 'Room List', contentlist: "/Roomlist" },
                                     // { title: 'Modality', buttonText: 'Add Modality', route: '/addModality', content: <AddModality />, buttonText2: 'Modality List', contentlist: <GetModality /> },
-                                    { title: 'Subject', buttonText: 'Add Subject', route: '/addSubject', content: <AddSubject />, buttonText2: 'Subject List', contentlist: "/SubjectList" },
+                                    { title: 'Subject', buttonText: 'Add Subject', route: '/addSubject', content: <AddSubject />, buttonText2: 'Subject List', contentlist: "/Subjectlist" },
                                 ].map(({ title, buttonText, route, content, contentlist, buttonText2 }, index) => (
                                     <div key={index} className="flex flex-col items-center">
                                         <h2 className="text-white text-lg font-semibold mb-2">{title}</h2>
@@ -162,9 +162,9 @@ const MasterFiles = () => {
                             <div className='bg-white p-8 rounded-lg shadow-lg relative max-w-md w-full'>
                                 <div className='grid grid-cols-3 text-xl font-bold md-4 text-black'>
                                     <div className=''>
-                                        <ArrowLeftCircle className='cursor-pointer h-7 w-7 text-white' onClick={closeModal} />
+                                        <ArrowLeftCircle className='cursor-pointer h-7 w-7 text-green-900' onClick={closeModal} />
                                     </div>
-                                    <p className='text-center text-white'>{modalTitle}</p>
+                                    <p className='text-center text-green-900'>{modalTitle}</p>
                                 </div>
                                 <div>
                                     {modalContent}
@@ -178,7 +178,7 @@ const MasterFiles = () => {
                 {
                     isOpenListModal && (
                         <div className='fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center w-full'>
-                            <div className='bg-blue-800 p-8 rounded-lg shadow-lg relative max-w-md w-full'>
+                            <div className='bg-green-800 p-8 rounded-lg shadow-lg relative max-w-md w-full'>
                                 <div className='grid grid-cols-3 text-xl font-bold md-4 text-black'>
                                     <div className=''>
                                         <ArrowLeftCircle className='cursor-pointer h-7 w-7 text-green-900' onClick={closeListModal} />

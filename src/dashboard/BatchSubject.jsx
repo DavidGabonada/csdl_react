@@ -52,7 +52,7 @@ const App = () => {
             const workbook = XLSX.read(arrayBuffer, { type: "array" });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(sheet);
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: null });
 
             setData(jsonData);
         } catch (error) {
@@ -129,30 +129,25 @@ const App = () => {
 
     return (
         // <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 p-6">
-        <div className="grid grid-cols-7 gap-4 h-screen">
-            <Navigator />
-            <div className="p-6 col-span-6">
-                <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-bold text-center text-green-900 mb-6">Subject Uploader</h1>
-                    <label className="block w-full bg-white text-green border border-white rounded-lg cursor-pointer hover:bg-green-900 text-white focus:outline-none">
-                        <input
-                            type="file"
-                            accept=".xlsx, .xls"
-                            onChange={handleFileUpload}
-                            className="hidden"
-                        />
-                        <div className="p-4 text-center text-green-900">Choose Excel File</div>
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4 min-h-screen">
+            <Navigator className="hidden md:block" />
+            <div className="p-4 md:p-6 col-span-6">
+                <div className="bg-white shadow-lg rounded-lg p-6 md:p-8 w-full max-w-7xl mx-auto">
+                    <h1 className="text-2xl md:text-3xl font-bold text-center text-green-900 mb-4 md:mb-6">Subject Uploader</h1>
+                    <label className="block w-full bg-white border border-green-900 rounded-lg cursor-pointer hover:bg-green-900 text-green-900 hover:text-white transition text-center">
+                        <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} className="hidden" />
+                        <div className="p-4">Choose Excel File</div>
                     </label>
-                    {fileName && <p className="text-center text-green-900 mt-4">Selected File: {fileName}</p>}
+                    {fileName && <p className="text-center text-green-900 mt-4 text-sm md:text-base">Selected File: {fileName}</p>}
 
                     {currentData.length > 0 && (
                         <>
-                            <div className="overflow-x-auto mt-6">
-                                <table className="table-auto w-full border-collapse border border-green-900 text-sm">
+                            <div className="overflow-x-auto mt-4 md:mt-6">
+                                <table className="table-auto w-full border-collapse border border-green-900 text-xs md:text-sm">
                                     <thead>
-                                        <tr className="bg-green-900s">
+                                        <tr className="bg-green-900">
                                             {Object.keys(currentData[0]).map((key) => (
-                                                <th key={key} className="border bg-green-900 px-4 py-2 text-white font-medium">
+                                                <th key={key} className="border bg-green-900 px-2 md:px-4 py-2 text-white font-medium">
                                                     {key}
                                                 </th>
                                             ))}
@@ -162,7 +157,7 @@ const App = () => {
                                         {currentData.map((row, idx) => (
                                             <tr key={idx} className="even:bg-gray-50">
                                                 {Object.values(row).map((value, i) => (
-                                                    <td key={i} className="border px-6 py-4 text-green-900">
+                                                    <td key={i} className="border px-2 md:px-6 py-2 md:py-4 text-green-900">
                                                         {value}
                                                     </td>
                                                 ))}
@@ -171,21 +166,21 @@ const App = () => {
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="flex justify-between items-center mt-6">
+                            <div className="flex flex-col md:flex-row justify-between items-center mt-4 md:mt-6 gap-2">
                                 <button
                                     disabled={currentPage === 1}
                                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                    className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none"
+                                    className="w-full md:w-auto bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none disabled:opacity-50"
                                 >
                                     Previous
                                 </button>
-                                <p className="text-gray-700">
+                                <p className="text-gray-700 text-sm md:text-base">
                                     Page {currentPage} of {totalPages}
                                 </p>
                                 <button
                                     disabled={currentPage === totalPages}
                                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                    className="bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none"
+                                    className="w-full md:w-auto bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none disabled:opacity-50"
                                 >
                                     Next
                                 </button>
@@ -193,7 +188,7 @@ const App = () => {
                             <button
                                 onClick={handleSaveToBackend}
                                 disabled={loading}
-                                className={`mt-6 w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-75 ${loading
+                                className={`mt-4 md:mt-6 w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-75 ${loading
                                     ? "bg-gray-400 text-gray-800"
                                     : "bg-green-600 text-white hover:bg-green-700 focus:ring-green-400"
                                     }`}
@@ -205,6 +200,8 @@ const App = () => {
                 </div>
             </div>
         </div>
+
+
     );
 };
 

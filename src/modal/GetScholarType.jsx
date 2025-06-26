@@ -3,10 +3,13 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import secureLocalStorage from 'react-secure-storage';
 import { FaTrash, FaEdit } from 'react-icons/fa';
+import { ArrowLeftCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const GetScholarshipType = () => {
     const [scholarshipTypes, setScholarshipTypes] = useState([]);
     const [expandedScholarshipType, setExpandedScholarshipType] = useState(null);
+    const navigateTo = useNavigate();
 
     useEffect(() => {
         const getScholarshipTypes = async () => {
@@ -34,16 +37,14 @@ const GetScholarshipType = () => {
             formData.append("json", JSON.stringify(jsonData));
             const res = await axios.post(url, formData);
             if (res.data === 1) {
-                setScholarshipTypes(prevScholarshipTypes =>
-                    prevScholarshipTypes.filter(scholarshipType => scholarshipType.type_id !== type_id)
-                );
+                setScholarshipTypes(prev => prev.filter(item => item.type_id !== type_id));
                 toast.success("Scholarship type deleted successfully");
             } else {
-                toast.error(res.data.message || "Failed to delete Scholarship type");
+                toast.error(res.data.message || "Failed to delete scholarship type");
             }
         } catch (error) {
-            console.log('Failed to delete Scholarship type:', error);
-            toast.error("Failed to delete Scholarship type");
+            console.log('Failed to delete scholarship type:', error);
+            toast.error("Failed to delete scholarship type");
         }
     };
 
@@ -62,48 +63,58 @@ const GetScholarshipType = () => {
     };
 
     return (
-        <div className="bg-blue-700 w-full max-w-md mx-auto rounded-lg p-6 shadow-lg">
-            <div className="flex items-center justify-between mb-6">
-                <span className="text-white text-xl font-bold text-center flex-1">Scholarship Type List</span>
-            </div>
-            <div className="flex flex-col space-y-4">
-                {scholarshipTypes.length > 0 ? (
-                    scholarshipTypes.map((scholarshipType) => (
-                        <div key={scholarshipType.type_id}>
+        <div className="bg-gray-100 min-h-screen w-full py-10 px-6">
+            <div className="max-w-[1440px] mx-auto space-y-10">
+                <ArrowLeftCircle onClick={() => navigateTo(-1)} className="cursor-pointer text-green-700 hover:text-green-900 mb-4" size={32} />
+
+                <h1 className="text-4xl font-bold text-green-800 text-center mb-6">
+                    Scholarship Type Management
+                </h1>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    {scholarshipTypes.length > 0 ? (
+                        scholarshipTypes.map((item) => (
                             <div
-                                className="flex items-center justify-between bg-blue-800 rounded-md py-3 px-5 text-white cursor-pointer hover:bg-blue-900 hover:scale-105 transition-transform duration-300"
-                                onClick={() => handleScholarshipTypeClick(scholarshipType.type_id)}
+                                key={item.type_id}
+                                className="bg-white shadow-md rounded-2xl p-6 w-full h-full transition-transform hover:scale-[1.02]"
                             >
-                                <span className="text-lg">{expandedScholarshipType === scholarshipType.type_id ? '▼' : '▲ '}</span>
-                                <span className="text-lg font-medium flex-1">{scholarshipType.type_name}</span>
-                                {expandedScholarshipType === scholarshipType.type_id && (
-                                    <div className="flex space-x-2">
-                                        <button
-                                            className="text-red-500 hover:bg-red-600 hover:text-white p-1 rounded-md"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(scholarshipType.type_id);
-                                            }}
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                        <button
-                                            className="text-yellow-500 hover:bg-yellow-600 hover:text-white p-1 rounded-md"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleUpdate(scholarshipType.type_id);
-                                            }}
-                                        >
-                                            <FaEdit />
-                                        </button>
+                                <div className="flex flex-col space-y-4 h-full justify-between">
+                                    <div onClick={() => handleScholarshipTypeClick(item.type_id)} className="cursor-pointer">
+                                        <h2 className="text-2xl font-semibold text-green-700">
+                                            {item.type_name}
+                                        </h2>
                                     </div>
-                                )}
+                                    {expandedScholarshipType === item.type_id && (
+                                        <div className="flex space-x-3 justify-end">
+                                            <button
+                                                className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleUpdate(item.type_id);
+                                                }}
+                                            >
+                                                <FaEdit />
+                                                <span>Edit</span>
+                                            </button>
+                                            <button
+                                                className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition-colors"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(item.type_id);
+                                                }}
+                                            >
+                                                <FaTrash />
+                                                <span>Delete</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-white text-center">No Data Found</p>
-                )}
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-600 col-span-full">No Scholarship Types Available</p>
+                    )}
+                </div>
             </div>
         </div>
     );

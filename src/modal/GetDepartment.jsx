@@ -3,14 +3,16 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import secureLocalStorage from 'react-secure-storage';
 import { FaTrash, FaEdit } from 'react-icons/fa';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { ArrowLeftCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const GetDepartment = () => {
     const [departments, setDepartments] = useState([]);
     const [editId, setEditId] = useState(null);
-    const [editName, setEditName] = useState("");
+    const [editName, setEditName] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [showValidation, setShowValidation] = useState(false);
+    const navigateTo = useNavigate();
 
     useEffect(() => {
         const getDepartments = async () => {
@@ -47,9 +49,9 @@ const GetDepartment = () => {
         }
     };
 
-    const handleEdit = (departmentId, currentName) => {
-        setEditId(departmentId);
-        setEditName(currentName);
+    const handleEdit = (dept_id, name) => {
+        setEditId(dept_id);
+        setEditName(name);
         setShowModal(true);
         setShowValidation(false);
     };
@@ -68,8 +70,8 @@ const GetDepartment = () => {
             const res = await axios.post(url, formData);
 
             if (res.data === 1) {
-                setDepartments(departments.map((department) =>
-                    department.dept_id === editId ? { ...department, dept_name: editName } : department
+                setDepartments(departments.map((dept) =>
+                    dept.dept_id === editId ? { ...dept, dept_name: editName } : dept
                 ));
                 toast.success("Department updated successfully!");
                 setShowModal(false);
@@ -82,71 +84,94 @@ const GetDepartment = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8 px-4">
-            <div className="w-full max-w-4xl mx-auto text-center mb-6">
-                <h1 className="text-4xl font-extrabold text-green-800 mb-6">Department List</h1>
+        <div className="bg-gray-100 min-h-screen w-full py-10 px-6">
+            <div className="max-w-[1440px] mx-auto space-y-10">
+                <ArrowLeftCircle onClick={() => navigateTo(-1)} className="cursor-pointer text-green-700 hover:text-green-900 mb-4" size={32} />
+
+                <h1 className="text-4xl font-bold text-green-800 text-center mb-6">
+                    Department Management
+                </h1>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    {departments.length > 0 ? (
+                        departments.map((dept) => (
+                            <div
+                                key={dept.dept_id}
+                                className="bg-white shadow-md rounded-2xl p-6 w-full h-full transition-transform hover:scale-[1.02]"
+                            >
+                                <div className="flex flex-col space-y-4 h-full justify-between">
+                                    <h2 className="text-2xl font-semibold text-green-700">
+                                        {dept.dept_name}
+                                    </h2>
+                                    <div className="flex space-x-3 justify-end">
+                                        <button
+                                            className="bg-blue-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-blue-600 transition-colors"
+                                            onClick={() => handleEdit(dept.dept_id, dept.dept_name)}
+                                        >
+                                            <FaEdit />
+                                            <span>Edit</span>
+                                        </button>
+                                        <button
+                                            className="bg-red-500 text-white py-2 px-4 rounded-lg flex items-center space-x-2 hover:bg-red-600 transition-colors"
+                                            onClick={() => {
+                                                if (window.confirm("Are you sure you want to delete this department?")) {
+                                                    deleteDepartment(dept.dept_id);
+                                                }
+                                            }}
+                                        >
+                                            <FaTrash />
+                                            <span>Delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-600 col-span-full">No Departments Available</p>
+                    )}
+                </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
-                {departments.length > 0 ? (
-                    departments.map((department) => (
-                        <div
-                            key={department.dept_id}
-                            className="bg-green-500 rounded-lg p-6 shadow-lg border border-green-600 hover:bg-green-600 transition duration-300"
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-xl w-full max-w-[90vw] sm:max-w-md p-8 relative shadow-lg">
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-2 right-2 bg-gray-200 rounded-full text-gray-600 p-2 hover:bg-gray-300 transition-colors"
                         >
-                            <h2 className="text-2xl font-semibold text-white mb-4">{department.dept_name}</h2>
-                            <div className="flex justify-end space-x-3">
+                            X
+                        </button>
+                        <div className="flex flex-col space-y-6">
+                            <h2 className="text-2xl font-bold text-green-700">Edit Department</h2>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Department Name</label>
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    className={`w-full border ${showValidation ? 'border-red-500' : 'border-gray-300'} rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500`}
+                                />
+                                {showValidation && <p className="text-red-500 text-sm mt-2">Department name cannot be empty.</p>}
+                            </div>
+
+                            <div className="flex justify-end space-x-4">
                                 <button
-                                    className="text-white bg-gray-800 hover:bg-gray-700 p-2 rounded-md"
-                                    onClick={() => handleEdit(department.dept_id, department.dept_name)}
+                                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                                    onClick={() => setShowModal(false)}
                                 >
-                                    <FaEdit size={20} />
+                                    Cancel
                                 </button>
                                 <button
-                                    className="text-white bg-red-600 hover:bg-red-500 p-2 rounded-md"
-                                    onClick={() => deleteDepartment(department.dept_id)}
+                                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                    onClick={saveDepartment}
                                 >
-                                    <FaTrash size={20} />
+                                    Save Changes
                                 </button>
                             </div>
                         </div>
-                    ))
-                ) : (
-                    <p className="text-center text-gray-700 text-lg">No Data Found</p>
-                )}
-            </div>
-
-            {/* Edit Department Modal */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-                <Modal.Header closeButton className="bg-green-600 text-white">
-                    <Modal.Title>Edit Department</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="bg-white">
-                    <Form>
-                        <Form.Group controlId="formDepartmentName">
-                            <Form.Label className="text-gray-800 font-semibold">Department Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                placeholder="Enter new department name"
-                                isInvalid={showValidation}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                Department name cannot be empty.
-                            </Form.Control.Feedback>
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer className="bg-white">
-                    <Button variant="secondary" className="bg-gray-300 text-gray-700 border-0" onClick={() => setShowModal(false)}>
-                        Close
-                    </Button>
-                    <Button variant="primary" className="bg-green-600 text-white border-0" onClick={saveDepartment}>
-                        Save Changes
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

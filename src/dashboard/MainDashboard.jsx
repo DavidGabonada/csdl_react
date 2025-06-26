@@ -1,47 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, CircleUser, FolderClosed, LogOutIcon, PanelsRightBottom, QrCodeIcon, User, List, Mail, Calendar, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sun, Moon, Calendar, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Legend } from "recharts";
 import { toast } from 'sonner';
 import secureLocalStorage from 'react-secure-storage';
 import axios from 'axios';
 import Navigator from './navigator';
-import Navigatortwo from './navigatortwo';
 
 const MainDashboard = () => {
-    const [formData, setFormData] = useState({
-        course: "",
-        yearLevel: "",
-    });
+    const [formData, setFormData] = useState({ course: "", yearLevel: "" });
     const [yearLevels, setYearLevels] = useState([]);
     const [courses, setCourses] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [darkMode, setDarkMode] = useState(false);
-    const [adminLevel, setAdminLevel] = useState(secureLocalStorage.getItem("adminLevel"));
-    const itemsPerPage = 4;
+    const [assign, setAssign] = useState([]);
     const navigateTo = useNavigate();
+    const itemsPerPage = 4;
+    const data = [
+        { day: "Monday", time: "7:30 AM - 9:00 AM", absent: 5 },
 
+        { day: "Tuesday", time: "7:30 AM - 9:00 AM", absent: 7 },
+
+        { day: "Wednesday", time: "7:30 AM - 9:00 AM", absent: 3 },
+
+        { day: "Thursday", time: "7:30 AM - 9:00 AM", absent: 4 },
+
+        { day: "Friday", time: "7:30 AM - 9:00 AM", absent: 6 },
+    ];
+
+
+
+    const pieData = [
+        { name: "Male", value: 400, color: "#4CAF50" },
+        { name: "Female", value: 300, color: "#F44336" },
+    ];
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = assignments.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(assignments.length / itemsPerPage);
 
-    // Navigation functions
     const nextPage = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
+        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
     };
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
+    const prevPage = () => {
+        if (currentPage > 1) setCurrentPage(currentPage - 1);
     };
 
-    const prevPage = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
+    const toggleDarkMode = () => setDarkMode(!darkMode);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -69,149 +76,106 @@ const MainDashboard = () => {
                 const res = await axios.post(url, formData);
                 setAssignments(res.data);
             } catch (error) {
-                console.error('Failed to fetch data:', error);
                 toast.error('Failed to fetch data');
             }
         };
         getAssignmentList();
-        // setAdminLevel(secureLocalStorage.getItem("adminLevel"));
     }, []);
+    useEffect(() => {
+        const getDashboard = async () => {
+            try {
+                const url = secureLocalStorage.getItem('url') + 'CSDL.php';
+                const formData = new FormData();
+                formData.append('operation', 'getDashboard');
+                const res = await axios.post(url, formData);
+                setAssign(res.data.getAssignedScholar);
+            } catch (error) {
+                toast.error('Failed to fetch data');
+            }
+        };
+        getDashboard();
+    }, []);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
-
-    const handleLogOut = () => {
-        navigateTo("/");
+        setFormData({ ...formData, [name]: value });
     };
 
     return (
-        <div
-            className={`flex h-screen ${darkMode ? 'bg-gray-950' : ''}`}
-
-        >
+        <div className={`flex h-screen ${darkMode ? 'bg-gray-950' : ''}`}>
             <Navigator />
-            <main
-                className="flex-1 p-8 relative"
-                style={{ backgroundImage: `url('/path/to/your/background-image.jpg')`, backgroundSize: 'cover' }}
-            >
-                <div
-                    className="absolute right-[-60px] bg-center opacity-10 rounded-full"
-                    style={{
-                        backgroundImage: `url('images/csdl.jpg')`,
-                        backgroundSize: 'cover',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundPosition: 'right bottom',
-                        width: '700px',
-                        height: '700px',
-                        zIndex: 0,
-                    }}
-                />
-                <h2 className="text-3xl text-white font-bold flex items-center">
-                    Time Sheets - October 2024
-                    <Calendar className="ml-2 text-5xl" />
+            <main className="flex-1 p-8 relative bg-gray-100">
+                <h2 className="text-3xl text-gray-900 font-bold flex items-center">
+                    Time Sheets - October 2024 <Calendar className="ml-2 text-5xl" />
                 </h2>
                 <br />
-
-
-                <div className="flex items-center p-6">
-                    <img
-                        src={`http://localhost/csdl/images/${secureLocalStorage.getItem("userImage")}`}
-                        alt="User Avatar of Mae Jabulan"
-                        className="w-24 h-24 mr-4 rounded-xl"
-                    />
+                <div className="flex items-center p-6 bg-white rounded-md shadow-md">
+                    <img src={`http://localhost/csdl/images/${secureLocalStorage.getItem("userImage")}`} alt="User Avatar" className="w-24 h-24 mr-4 rounded-xl" />
                     <div>
-                        <h3 className="text-2xl font-sans text-green-900">{secureLocalStorage.getItem("fullName")}</h3>
-                        <p className="text-lg text-green-900">{secureLocalStorage.getItem("email")} </p>
+                        <h3 className="text-2xl font-sans text-green-900">{secureLocalStorage.getItem("adminName")}</h3>
+                        <p className="text-lg text-green-900">{secureLocalStorage.getItem("email")}</p>
                         <p className="text-lg text-green-900">Administrator</p>
                     </div>
                     <div className="relative ml-auto">
                         <Search className="absolute left-2 top-3 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search scholar"
-                            className="p-2 pl-8 rounded-md bg-white shadow-md"
-                        />
+                        <input type="text" placeholder="Search scholar" className="p-2 pl-8 rounded-md bg-white shadow-md" />
+                    </div>
+                </div>
+                <br />
+
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white p-4 shadow-md rounded-md text-center">
+                        {/* <h3 className="text-xl">{stats.total_unassigned}</h3> */}
+                        <p className="text-gray-500">Total Unassigned</p>
+                    </div>
+                    <div className="bg-white p-4 shadow-md rounded-md text-center">
+                        <h3 className="text-xl">{assign.length}</h3>
+                        <p className="text-gray-500">Total Assigned</p>
+                    </div>
+                    <div className="bg-white p-4 shadow-md rounded-md text-center">
+                        {/* <h3 className="text-xl">{stats.total_renewed}</h3> */}
+                        <p className="text-gray-500">Total Renewed</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 shadow-md rounded-md mt-6">
+                    <h3 className="text-2xl font-bold mb-4">Attendance Overview</h3>
+                    <div className="flex gap-8">
+                        {/* Total Present & Absent Chart */}
+                        <div className="w-2/3 bg-white p-6 shadow-lg rounded-md border">
+                            <h3 className="text-lg font-bold mb-2">Total Present & Absent</h3>
+                            <ResponsiveContainer width="100%" height={400}>
+                                <LineChart data={data}>
+                                    <XAxis dataKey="day" tick={{ fill: '#555' }} />
+                                    <YAxis
+                                        domain={[7.5, 12.0]}
+                                        tickFormatter={(time) => {
+                                            const hours = Math.floor(time);
+                                            const minutes = (time % 1) * 60;
+                                            return `${hours}:${minutes === 0 ? "00" : minutes} AM`;
+                                        }}
+                                        tick={{ fill: '#555' }}
+                                    />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line type="monotone" dataKey="absent" stroke="#F44336" strokeWidth={3} dot={{ fill: '#F44336', r: 5 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* Scholar Stats Pie Chart */}
+                        <div className="w-1/3 bg-white p-6 shadow-lg rounded-md border flex flex-col items-center">
+                            <h3 className="text-lg font-bold mb-4">Scholar Stats</h3>
+                            <PieChart width={220} height={220}>
+                                <Pie data={pieData} dataKey="value" outerRadius={90} />
+                            </PieChart>
+                        </div>
                     </div>
                 </div>
 
 
-                <header className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-white mb-6">{secureLocalStorage.getItem("firstName") + "'s"} Timeline</h1>
-                    <div className="flex items-center space-x-3">
-                        <select
-                            name="yearLevel"
-                            value={formData.yearLevel}
-                            onChange={handleInputChange}
-                            className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 z-10"
-                            required
-                        >
-                            <option value="">Select Year Level</option>
-                            {yearLevels.length > 0 ? yearLevels.map((level, index) => (
-                                <option key={index} value={level.year_level_id}>
-                                    {level.year_level_name}
-                                </option>
-                            )) : (<option>No School Year Yet</option>)}
-                        </select>
-                        <select
-                            name="course"
-                            value={formData.course}
-                            onChange={handleInputChange}
-                            className="mt-1 p-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 z-10" // Added z-10
-                            required
-                        >
-                            <option value="">Select Course</option>
-                            {courses.length > 0 ? courses.map((course, index) => (
-                                <option key={index} value={course.crs_id}>
-                                    {course.crs_name}
-                                </option>
-                            )) : (<option>No Course Yet</option>)}
-                        </select>
-                        <button className="bg-white text-blue-600 p-2 rounded-md flex items-center shadow-md">
-                            <Calendar className="mr-2" />
-                            Select Date
-                        </button>
-                    </div>
-                </header>
-
-                <div className="relative z-10 bg-white p-6 rounded-lg">
-                    <table className="w-full table-auto text-left">
-                        <thead>
-                            <tr className="border-b">
-                                <th className="p-4">Date</th>
-                                <th className="p-4">Name</th>
-                                <th className="p-4">Supervisor</th>
-                                <th className="p-4">Duty Hours</th>
-                                <th className="p-4">Starting Time</th>
-                                <th className="p-4">End Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr className="border-b">
-                                <td className="p-4">Dec. 15, 2023</td>
-                                <td className="p-4">Ralph Jan Gallegos</td>
-                                <td className="p-4">Ralph Jan Gallegos</td>
-                                <td className="p-4">180 Hours</td>
-                                <td className="p-4">9:30 AM</td>
-                                <td className="p-4">3:30 PM</td>
-                            </tr>
-                            <tr className="border-b">
-                                <td className="p-4">Dec. 15, 2023</td>
-                                <td className="p-4">Mel Angelo Macario</td>
-                                <td className="p-4">Mel Angelo Macario</td>
-                                <td className="p-4">180 Hours</td>
-                                <td className="p-4">10:30 AM</td>
-                                <td className="p-4">5:30 PM</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
             </main>
-
         </div >
     );
 };

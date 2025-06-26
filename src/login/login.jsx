@@ -109,6 +109,7 @@ const PuzzleAuth = () => {
                 secureLocalStorage.setItem("userImage", res.data.adm_image_filename);
                 secureLocalStorage.setItem("adminLogin", "true");
                 secureLocalStorage.setItem("adminLevel", res.data.adm_user_level);
+                secureLocalStorage.setItem("adminName", res.data.adm_name);
 
                 navigate("/MainDashboard");
             }

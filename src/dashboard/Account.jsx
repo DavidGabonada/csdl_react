@@ -158,14 +158,7 @@ const Account = () => {
                                 <label className="block text-green-900 mb-2 text-lg">Full Name*</label>
                                 <input type="text" name="fullName" value={userData.fullName} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-green-700 text-white border border-white text-lg" />
                             </div>
-                            <div>
-                                <label className="block text-green-900 mb-2 text-lg">Password*</label>
-                                <input type="password" name="password" value={userData.password} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-green-700 text-white border border-gray-600 text-lg" />
-                            </div>
-                            <div>
-                                <label className="block text-green-900 mb-2 text-lg">Confirm Password*</label>
-                                <input type="password" name="confirmPassword" value={userData.confirmPassword} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-green-700 text-white border border-gray-600 text-lg" />
-                            </div>
+
                             <div>
                                 <label className="block text-green-900 mb-2 text-lg">Email*</label>
                                 <input type="email" name="email" value={userData.email} onChange={handleInputChange} className="w-full p-3 rounded-lg bg-green-700 text-white border border-gray-600 text-lg" />

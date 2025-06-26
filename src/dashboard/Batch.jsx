@@ -107,7 +107,8 @@ const App = () => {
             const workbook = XLSX.read(arrayBuffer, { type: "array" });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(sheet);
+            const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: null });
+
             console.log("json data", jsonData)
 
             const processedData = jsonData.map((row) => ({
@@ -146,57 +147,39 @@ const App = () => {
         // Check the course, department, etc., arrays
 
 
-        const jsonData = data
-            .map((row, index) => {
+        const jsonData = data.map((row, index) => {
+            const courseId = course.find((c) => row.COURSE === c.course_name);
+            const departmentId = department.find((d) => row.COLLEGE === d.dept_name);
+            const scholarId = scholarListType.find((s) => row.SCHOLARSHIP === s.type_name);
+            const percentId = percentStyped.find((a) => Number(row.PERCENT) === Number(a.percent_name));
+            const academicSessionId = academicSession.find((b) => row.ACADEMIC_SESSION === b.session_name);
+            const schoolyearId = schoolYear.find((d) => row.YEAR === d.year_name);
+            const studStatusId = studStatus.find((e) => row.STUDENT_STATUS === e.status_name);
 
-                // Log the values being used in the `find()` method for better tracking
-                const courseId = course.find((c) => row.COURSE === c.course_name);
-                const departmentId = department.find((d) => row.COLLEGE === d.dept_name);
-                const scholarId = scholarListType.find((s) => row.SCHOLARSHIP === s.type_name);
-                const percentId = percentStyped.find((a) => Number(row.PERCENT) === Number(a.percent_name));
-                const academicSessionId = academicSession.find((b) => row.ACADEMIC_SESSION === b.session_name);
-                const schoolyearId = schoolYear.find((d) => row.YEAR === d.year_name);
-                const studStatusId = studStatus.find((e) => row.STUDENT_STATUS === e.status_name);
+            // Helper function to check if a value is empty and convert to null
+            const toNullable = (value) => (value === undefined || value === null || value === "" ? null : value);
 
-                console.log("STUDENT_STATUS", row.STUDENT_STATUS)
-                console.log("Status_nameStatus_nameStatus_nameStatus_name", studStatus.status_name)
+            return {
+                stud_id: toNullable(row["STUDENT_NO"]),
+                stud_active_academic_session_id: academicSessionId ? academicSessionId.session_id : null,
+                stud_name: toNullable(row["NAME"]),
+                stud_scholarship_id: scholarId ? scholarId.type_id : null,
+                stud_department_id: departmentId ? departmentId.dept_id : null,
+                stud_course_id: courseId ? courseId.course_id : null,
+                stud_active_year_id: schoolyearId ? schoolyearId.year_id : null,
+                stud_active_status_id: studStatusId ? studStatusId.status_id : null,
+                stud_active_percent_id: percentId ? percentId.percent_id : null,
+                stud_active_amount: toNullable(row["AMOUNT"]),
+                stud_active_applied_on_tuition: toNullable(row["APPLIED_TO_TUITION"]),
+                stud_active_applied_on_misc: toNullable(row["APPLIED_TO_MISC"]),
+                stud_active_mode_id: toNullable(row["MODE"]),
+                stud_date: toNullable(row["DATE"]),
+                stud_modified_by: toNullable(row["MODIFIED BY"]),
+                stud_modified_date: toNullable(row["MODIFIED DATE"]),
+                stud_image_file: "noImage.png",
+            };
+        }).filter(row => row !== null);
 
-                // Debug logs for comparison values
-                console.log("courseId:", courseId);
-                console.log("departmentId:", departmentId);
-                console.log("scholarId:", scholarId);
-                console.log("percentId:", percentId);
-                console.log("academicSessionId:", academicSessionId);
-                console.log("schoolyearId:", schoolyearId);
-                console.log("studStatusId:", studStatusId);
-
-                // Skip rows that don't have valid IDs for the required fields
-                // if (!academicSessionId || !courseId || !departmentId || !scholarId || !percentId || !schoolyearId || !studStatusId) {
-                //     console.error("Missing data for row", row);
-                //     return null;
-                // }
-
-                return {
-                    stud_id: row["STUDENT_NO"],
-                    stud_active_academic_session_id: academicSessionId.session_id,
-                    stud_name: row["NAME"],
-                    stud_scholarship_id: scholarId.type_id,
-                    stud_department_id: departmentId.dept_id,
-                    stud_course_id: courseId.course_id,
-                    stud_active_year_id: schoolyearId.year_id,
-                    stud_active_status_id: studStatusId.Status_id,
-                    stud_active_percent_id: percentId.percent_id,
-                    stud_active_amount: row["AMOUNT"],
-                    stud_active_applied_on_tuition: row["APPLIED_TO_TUITION"],
-                    stud_active_applied_on_misc: row["APPLIED_TO_MISC"],
-                    stud_active_mode_id: row["MODE"],
-                    stud_date: row["DATE"],
-                    stud_modified_by: row["MODIFIED BY"],
-                    stud_modified_date: row["MODIFIED DATE"],
-                    stud_image_file: "noImage.png", // Placeholder image file
-                };
-            })
-            .filter((row) => row !== null); // Remove invalid rows
 
         console.log("jsonData after mapping:", JSON.stringify(jsonData));
         console.log("jsonData Length:", jsonData.length);

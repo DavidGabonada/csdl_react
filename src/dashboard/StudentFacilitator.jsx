@@ -311,20 +311,23 @@ function StudentFacilitator() {
                 {/* Mode and Assigned Hours */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-white font-medium mb-2 bg-green-700 p-2 rounded-lg">Mode</label>
-                        <p className="w-full bg-green-700 text-white py-3 pl-4 rounded-lg">{formData.mode}</p>
+                        <label className="block text-black font-medium mb-2">Mode</label>
+                        <p className="w-full bg-gray-100 py-3 pl-4 rounded-lg">{formData.mode}</p>
                     </div>
 
                     <div>
-                        <label className="block text-white font-medium mb-2 bg-green-700 p-2 rounded-lg">Assigned Hours</label>
-                        <p className="w-full bg-green-700 text-white py-3 pl-4 rounded-lg">{formData.hours}</p>
+                        <label className="block text-black font-medium mb-2 ">Assigned Hours</label>
+                        <p className="w-full bg-gray-100 py-3 pl-4 rounded-lg">
+                            {formData.hours}
+                        </p>
+
                     </div>
                 </div>
 
                 {/* Select Scholar and Student Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div>
-                        <label className="block text-white font-medium mb-2 bg-green-700 p-2 rounded-lg">Select Scholar</label>
+                        <label className="block text-black font-medium mb-2">Select Scholar</label>
                         <Select
                             options={scholarOptions}
                             value={scholarOptions.find(option => option.value === scholarId)}
@@ -354,7 +357,7 @@ function StudentFacilitator() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     {/* Schedule Card */}
                     <div>
-                        <label className="block text-white font-medium mb-2 bg-green-700 p-2 rounded-lg">Schedule</label>
+                        <label className="block text-black font-medium mb-2">Schedule</label>
                         <div className="card shadow-lg">
                             <div className="card-body bg-green-700 text-white rounded-lg h-64 md:h-[54vh] overflow-auto">
                                 {Array.isArray(scholarSchedules) && scholarSchedules.length > 0 ? (
@@ -381,7 +384,7 @@ function StudentFacilitator() {
 
                     {/* Subject Selection - Matching Height */}
                     <div>
-                        <label className="block text-white font-medium mb-2 bg-green-700 p-2 rounded-lg">Select Subject</label>
+                        <label className="block text-black font-medium mb-2">Select Subject</label>
                         <div className="rounded-lg bg-green-700 shadow-lg h-64 md:h-[54vh] overflow-auto">
                             {subjectOptions.length > 0 ? (
                                 <table className="w-full text-sm">
